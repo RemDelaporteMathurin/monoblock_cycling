@@ -1,8 +1,7 @@
 import FESTIM as F
 
-from cycling_stepsize import CyclingStepsize
-
 import numpy as np
+
 
 model = F.Simulation()
 
@@ -107,43 +106,8 @@ model.mesh = F.MeshFromVertices(
     )
 )
 
-model.T = F.HeatTransferProblem(transient=True, initial_value=273.15 + 20)
-
-heat_flux = F.FluxBC(surfaces=1, value=10e6, field="T")
 convection_flux = F.ConvectiveFlux(h_coeff=70000, T_ext=323, surfaces=2)
 
-heat_transfer_bcs = [heat_flux, convection_flux]
-
-h_implantation = F.ImplantationDirichlet(
-    surfaces=1, phi=1.61e22, R_p=9.52e-10, D_0=tungsten.D_0, E_D=tungsten.E_D
-)
 recombination_flux_coolant = F.RecombinationFlux(
     Kr_0=2.9e-14, E_Kr=1.92, order=2, surfaces=2
 )
-
-h_transport_bcs = [h_implantation, recombination_flux_coolant]
-
-
-model.boundary_conditions = h_transport_bcs + heat_transfer_bcs
-
-model.settings = F.Settings(
-    absolute_tolerance=1e10,
-    relative_tolerance=1e-10,
-    final_time=2000,
-    chemical_pot=True,
-    traps_element_type="DG",
-)
-
-model.dt = CyclingStepsize(
-    rampup=100,
-    plateau=400,
-    rampdown=100,
-    rest=1000,
-    nb_cycles=2,
-    stepsizes_max={"rampup": 5, "plateau": 20, "rampdown": 5},
-    initial_value=1,
-    stepsize_change_ratio=1.1,
-)
-
-model.initialise()
-model.run()
