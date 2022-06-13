@@ -50,6 +50,11 @@ model.exports = F.Exports(
             checkpoint=False,
         ),
         F.XDMFExport(
+            "retention",
+            filename="results/continuous/retention.xdmf",
+            checkpoint=False,
+        ),
+        F.XDMFExport(
             "T", filename="results/continuous/temperature.xdmf", checkpoint=False
         ),
         derived_quantities,

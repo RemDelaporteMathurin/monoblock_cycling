@@ -43,6 +43,8 @@ class CyclingStepsize(Stepsize):
             and float(self.value) > self.stepsizes_max["rampdown"]
         ):
             self.value.assign(self.stepsizes_max["rampdown"])
+        if self.during_rest(t) and float(self.value) > self.stepsizes_max["rest"]:
+            self.value.assign(self.stepsizes_max["rest"])
 
     def during_rampup(self, t):
         length_cycle = self.rampup + self.plateau + self.rampdown + self.rest

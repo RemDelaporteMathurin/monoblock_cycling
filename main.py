@@ -99,9 +99,9 @@ model.traps = [trap_conglo, trap_w2]
 model.mesh = F.MeshFromVertices(
     np.concatenate(
         [
-            np.linspace(*tungsten.borders, num=200),
-            np.linspace(*cu.borders, num=50),
-            np.linspace(*cucrzr.borders, num=100),
+            np.linspace(*tungsten.borders, num=400),
+            np.linspace(*cu.borders, num=20),
+            np.linspace(*cucrzr.borders, num=20),
         ]
     )
 )

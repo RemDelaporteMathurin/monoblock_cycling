@@ -25,7 +25,7 @@ model.dt = CyclingStepsize(
     rampdown=rampdown,
     rest=rest,
     nb_cycles=nb_cycles,
-    stepsizes_max={"rampup": 5, "plateau": 20, "rampdown": 5},
+    stepsizes_max={"rampup": 5, "plateau": 20, "rampdown": 5, "rest": 100},
     initial_value=1,
     stepsize_change_ratio=1.1,
     dt_min=0.1,
@@ -79,6 +79,11 @@ model.exports = F.Exports(
         F.XDMFExport(
             "solute",
             filename="results/cycling/mobile_concentration.xdmf",
+            checkpoint=False,
+        ),
+        F.XDMFExport(
+            "retention",
+            filename="results/cycling/retention.xdmf",
             checkpoint=False,
         ),
         F.XDMFExport(
