@@ -18,8 +18,11 @@ inventory_continuous = sum(
     [data_continuous["Total_retention_volume_{}".format(i)] for i in [1, 2, 3]]
 )
 
-plt.plot(data_cycling["ts"], inventory_cycling)
+plt.plot(
+    data_cycling["ts"] * ((100 + 400 + 100) / (1000 + 100 + 400 + 100)),
+    inventory_cycling,
+)
 plt.plot(data_continuous["ts"], inventory_continuous)
-# plt.xscale("log")
+plt.xscale("log")
 plt.yscale("log")
 plt.show()
