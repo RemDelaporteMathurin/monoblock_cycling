@@ -2,7 +2,7 @@ from main import model, tungsten, recombination_flux_coolant, convection_flux
 
 import FESTIM as F
 
-nb_cycles = 30
+nb_cycles = 60
 rampup = 100
 plateau = 400
 rampdown = 100

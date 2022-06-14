@@ -72,6 +72,7 @@ derived_quantities = F.DerivedQuantities(
         F.TotalVolume(field="retention", volume=3),
     ],
     filename="results/cycling/derived_quantities.csv",
+    nb_iterations_between_exports=10,
 )
 
 model.exports = F.Exports(
