@@ -96,14 +96,30 @@ trap_conglo = F.Trap(
 
 model.traps = [trap_conglo, trap_w2]
 
-model.mesh = F.MeshFromVertices(
-    np.concatenate(
-        [
-            np.linspace(*tungsten.borders, num=100),
-            np.linspace(*cu.borders, num=50),
-            np.linspace(*cucrzr.borders, num=100),
-        ]
-    )
+# model.mesh = F.MeshFromVertices(
+#     np.concatenate(
+#         [
+#             np.linspace(tungsten.borders[0], 1e-6, num=50),
+#             np.linspace(1e-6, tungsten.borders[1], num=500),
+#             np.linspace(*cu.borders, num=50),
+#             np.linspace(*cucrzr.borders, num=100),
+#         ]
+#     )
+# )
+
+model.mesh = F.MeshFromRefinements(
+    600,
+    size=cucrzr.borders[-1],
+    refinements=[
+        {"x": tungsten.borders[-1], "cells": 500},
+        {"x": 1e-5, "cells": 100},
+        {"x": 2e-6, "cells": 200},
+        {"x": 2e-7, "cells": 20},
+        # {"x": 1e-4, "cells": 50},
+        # {"x": 1e-4, "cells": 100},
+        # {"x": 1e-6, "cells": 100},
+        # {"x": 1e-7, "cells": 100},
+    ],
 )
 
 convection_flux = F.ConvectiveFlux(h_coeff=70000, T_ext=323, surfaces=2)
