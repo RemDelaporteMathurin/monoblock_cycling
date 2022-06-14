@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotx
 from scipy.interpolate import interp1d
 
 nb_cycles = 30
@@ -29,7 +30,7 @@ def get_flux(part_flux_value):
     return flux
 
 
-def plot_continuous_cycling(heat_flux, part_flux):
+def plot_continuous_cycling(heat_flux, part_flux, label="", **kwargs):
 
     folder = "results/phi_heat={:.1e}_phi_part={:.1e}".format(heat_flux, part_flux)
     data_cycling = np.genfromtxt(
@@ -54,20 +55,40 @@ def plot_continuous_cycling(heat_flux, part_flux):
     for i, t in enumerate(data_cycling["ts"][:-1]):
         fluence_cycling.append(fluence_cycling[-1] + flux(t) * dt_cycling[i])
 
-    plt.plot(fluence_cycling, inventory_cycling)
+    fluence_cycling = np.array(fluence_cycling)
+
+    plt.plot(
+        fluence_cycling[np.where(fluence_cycling < fluence_max)],
+        inventory_cycling[np.where(fluence_cycling < fluence_max)],
+        **kwargs
+    )
 
     fluence_continuous = data_continuous["ts"] * part_flux
-    plt.plot(fluence_continuous, inventory_continuous)
+    plt.plot(
+        fluence_continuous[np.where(fluence_continuous < fluence_max)],
+        inventory_continuous[np.where(fluence_continuous < fluence_max)],
+        linestyle="dashed",
+        label=label,
+        **kwargs
+    )
 
 
-for heat_flux, part_flux in zip([5e6, 13e6], [5e21, 1.6e22]):
-    plot_continuous_cycling(heat_flux, part_flux)
+fluence_max = 3.6e25
 
-plt.xlim(left=6e23, right=3.6e25)
+plt.figure(figsize=(6.4, 3))
+
+plot_continuous_cycling(5e6, 5e21, color="tab:blue", label="low flux")
+plot_continuous_cycling(13e6, 1.6e22, color="tab:orange", label="high flux")
+
+plt.xlim(left=6e23)
 plt.ylim(4e17, 7e20)
 plt.xscale("log")
 plt.yscale("log")
 
+plt.gca().spines.right.set_visible(False)
+plt.gca().spines.top.set_visible(False)
 plt.xlabel("Fluence (m$^{-2}$)")
 plt.ylabel("Inventory (m$^{-2}$)")
+matplotx.line_labels()
+plt.tight_layout()
 plt.show()
