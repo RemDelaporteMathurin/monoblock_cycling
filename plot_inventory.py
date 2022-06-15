@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotx
 from scipy.interpolate import interp1d
+from scipy.optimize import curve_fit
 
 nb_cycles = 30
 rampup = 100
@@ -73,12 +74,44 @@ def plot_continuous_cycling(heat_flux, part_flux, label="", **kwargs):
     )
 
 
+def fit_continuous(heat_flux, part_flux):
+    def power_law(x, a, b):
+        return a * x**b
+
+    folder = "results/phi_heat={:.1e}_phi_part={:.1e}".format(heat_flux, part_flux)
+    data_continuous = np.genfromtxt(
+        folder + "/continuous/derived_quantities.csv", delimiter=",", names=True
+    )
+    inventory_continuous = sum(
+        [data_continuous["Total_retention_volume_{}".format(i)] for i in [1, 2, 3]]
+    )
+    fluence_continuous = data_continuous["ts"] * part_flux
+
+    popt, pcov = curve_fit(power_law, fluence_continuous, inventory_continuous)
+    return popt
+
+
 fluence_max = 3.6e25
+
 
 plt.figure(figsize=(6.4, 3))
 
 plot_continuous_cycling(5e6, 5e21, color="tab:blue", label="low flux")
+a, b = fit_continuous(5e6, 5e21)
+plt.annotate(
+    "$\propto \mathrm{fluence} ^{" + "{:.1f}".format(b) + "}$",
+    (1e24, 5e19),
+    color="tab:blue",
+)
+
+
 plot_continuous_cycling(13e6, 1.6e22, color="tab:orange", label="high flux")
+a, b = fit_continuous(13e6, 1.6e22)
+plt.annotate(
+    "$\propto \mathrm{fluence} ^{" + "{:.1f}".format(b) + "}$",
+    (2e24, 3e18),
+    color="tab:orange",
+)
 
 plt.xlim(left=6e23)
 plt.ylim(4e17, 7e20)
