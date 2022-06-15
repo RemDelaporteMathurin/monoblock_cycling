@@ -116,13 +116,40 @@ plt.annotate(
     color="tab:blue",
 )
 
+height_spike = 2e20 - 5.4e19  # TODO make this more generic
+target_height_over_inv = 0.1
+fluence_when_spike_negligible = (1 / target_height_over_inv * height_spike / a) ** (
+    1 / b
+)
+fluence_per_cycle = 5e21 * (plateau + rampdown / 2 + rampup / 2)
+nb_cycle_when_spike_negligible = fluence_when_spike_negligible / fluence_per_cycle
+print(
+    "For the low flux case, the spike becomes negigible after {:.0f} cycles.".format(
+        nb_cycle_when_spike_negligible
+    )
+)
 
 plot_continuous_cycling(13e6, 1.6e22, color="tab:orange", label="high flux")
+
+
 a, b = fit_continuous(13e6, 1.6e22)
 plt.annotate(
     "$\propto \mathrm{fluence} ^{" + "{:.1f}".format(b) + "}$",
     (2e24, 3e18),
     color="tab:orange",
+)
+height_spike = 1e20 - 6.5e18  # TODO make this more generic
+
+target_height_over_inv = 0.1
+fluence_when_spike_negligible = (1 / target_height_over_inv * height_spike / a) ** (
+    1 / b
+)
+fluence_per_cycle = 1.6e22 * (plateau + rampdown / 2 + rampup / 2)
+nb_cycle_when_spike_negligible = fluence_when_spike_negligible / fluence_per_cycle
+print(
+    "For the high flux case, the spike becomes negigible after {:.0f} cycles.".format(
+        nb_cycle_when_spike_negligible
+    )
 )
 
 plt.xlim(left=6e23)
