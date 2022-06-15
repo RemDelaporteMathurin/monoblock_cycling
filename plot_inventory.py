@@ -31,8 +31,7 @@ def get_flux(part_flux_value):
     return flux
 
 
-def plot_continuous_cycling(heat_flux, part_flux, label="", **kwargs):
-
+def get_inventory_cycling(heat_flux, part_flux):
     folder = "results/phi_heat={:.1e}_phi_part={:.1e}".format(heat_flux, part_flux)
     data_cycling = np.genfromtxt(
         folder + "/cycling/derived_quantities.csv", delimiter=",", names=True
@@ -41,14 +40,6 @@ def plot_continuous_cycling(heat_flux, part_flux, label="", **kwargs):
     inventory_cycling = sum(
         [data_cycling["Total_retention_volume_{}".format(i)] for i in [1, 2, 3]]
     )
-
-    data_continuous = np.genfromtxt(
-        folder + "/continuous/derived_quantities.csv", delimiter=",", names=True
-    )
-    inventory_continuous = sum(
-        [data_continuous["Total_retention_volume_{}".format(i)] for i in [1, 2, 3]]
-    )
-
     flux = get_flux(part_flux)
 
     dt_cycling = np.diff(data_cycling["ts"])
@@ -57,6 +48,28 @@ def plot_continuous_cycling(heat_flux, part_flux, label="", **kwargs):
         fluence_cycling.append(fluence_cycling[-1] + flux(t) * dt_cycling[i])
 
     fluence_cycling = np.array(fluence_cycling)
+    return fluence_cycling, inventory_cycling
+
+
+def get_inventory_continuous(heat_flux, part_flux):
+    folder = "results/phi_heat={:.1e}_phi_part={:.1e}".format(heat_flux, part_flux)
+    data_continuous = np.genfromtxt(
+        folder + "/continuous/derived_quantities.csv", delimiter=",", names=True
+    )
+    inventory_continuous = sum(
+        [data_continuous["Total_retention_volume_{}".format(i)] for i in [1, 2, 3]]
+    )
+
+    fluence_continuous = data_continuous["ts"] * part_flux
+    return fluence_continuous, inventory_continuous
+
+
+def plot_continuous_cycling(heat_flux, part_flux, label="", **kwargs):
+
+    fluence_cycling, inventory_cycling = get_inventory_cycling(heat_flux, part_flux)
+    fluence_continuous, inventory_continuous = get_inventory_continuous(
+        heat_flux, part_flux
+    )
 
     plt.plot(
         fluence_cycling[np.where(fluence_cycling < fluence_max)],
@@ -64,7 +77,6 @@ def plot_continuous_cycling(heat_flux, part_flux, label="", **kwargs):
         **kwargs
     )
 
-    fluence_continuous = data_continuous["ts"] * part_flux
     plt.plot(
         fluence_continuous[np.where(fluence_continuous < fluence_max)],
         inventory_continuous[np.where(fluence_continuous < fluence_max)],
