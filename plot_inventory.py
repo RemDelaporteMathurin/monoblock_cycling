@@ -31,7 +31,7 @@ def get_flux(part_flux_value):
     return flux
 
 
-def get_inventory_cycling(heat_flux, part_flux):
+def get_inventory_cycling(heat_flux, part_flux, return_time=False):
     folder = "results/phi_heat={:.1e}_phi_part={:.1e}".format(heat_flux, part_flux)
     data_cycling = np.genfromtxt(
         folder + "/cycling/derived_quantities.csv", delimiter=",", names=True
@@ -48,7 +48,10 @@ def get_inventory_cycling(heat_flux, part_flux):
         fluence_cycling.append(fluence_cycling[-1] + flux(t) * dt_cycling[i])
 
     fluence_cycling = np.array(fluence_cycling)
-    return fluence_cycling, inventory_cycling
+    if return_time:
+        return fluence_cycling, inventory_cycling, data_cycling["ts"]
+    else:
+        return fluence_cycling, inventory_cycling
 
 
 def get_inventory_continuous(heat_flux, part_flux):
@@ -162,5 +165,49 @@ plt.gca().spines.top.set_visible(False)
 plt.xlabel("Fluence (m$^{-2}$)")
 plt.ylabel("Inventory (m$^{-2}$)")
 matplotx.line_labels()
+plt.tight_layout()
+plt.show()
+
+
+plt.figure(figsize=(8, 3))
+heat_flux = 13e6
+part_flux = 1.6e22
+fluence_cycling, inventory_cycling, t_cycling = get_inventory_cycling(
+    heat_flux, part_flux, return_time=True
+)
+
+n_cycle = 5
+cycle_length = rampdown + rampup + plateau + rest
+t_min, tmax = n_cycle * cycle_length, (n_cycle + 1) * cycle_length
+
+indexes = np.where(t_cycling - t_min > 0)
+plt.plot((t_cycling - t_min)[indexes], inventory_cycling[indexes])
+plt.vlines(
+    [rampup, rampup + plateau, rampup + plateau + rampdown],
+    ymin=0,
+    ymax=1.4e20,
+    linestyles="dashed",
+    colors="tab:grey",
+)
+plt.annotate("Ramp-up", (rampup / 2, 1.4e20), ha="center")
+plt.annotate("Plateau", (rampup + plateau / 2, 1.4e20), ha="center")
+plt.annotate("Ramp-down", (rampup + plateau + rampdown / 2, 1.4e20), ha="center")
+plt.annotate("Rest", (1000, 1.4e20), ha="center")
+
+plt.ylabel("Inventory (m$^{-2}$)")
+plt.xlabel("Cycle time (s)")
+plt.xlim(-30, cycle_length)
+plt.ylim(0, 1.6e20)
+plt.xticks(
+    [
+        0,
+        rampup,
+        rampup + plateau,
+        rampup + plateau + rampdown,
+        rampup + plateau + rampdown + rest,
+    ]
+)
+plt.gca().spines.right.set_visible(False)
+plt.gca().spines.top.set_visible(False)
 plt.tight_layout()
 plt.show()
